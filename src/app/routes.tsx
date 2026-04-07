@@ -10,4 +10,6 @@ export const router = createBrowserRouter([
   { path: '/quiz/:shareId', Component: Quiz },  
   { path: '/results', Component: Results },
   { path: '*', Component: NotFound },
-]);
+], {
+  basename: '/quizmaster',
+});

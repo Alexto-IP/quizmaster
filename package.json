@@ -1,12 +1,15 @@
 {
   "name": "quizmaster",
-  "homepage": "https://alexto-ip.github.io/QuizMaster",
+  "homepage": "https://alexto-ip.github.io/quizmaster",
   "private": true,
   "version": "0.0.1",
   "type": "module",
   "scripts": {
-    "build": "vite build",
     "dev": "vite",
+    "build": "vite build",
+    "lint": "eslint .",
+    "preview": "vite preview",
+    "predeploy": "npm run build",
     "deploy": "gh-pages -d dist"
   },
   "dependencies": {
