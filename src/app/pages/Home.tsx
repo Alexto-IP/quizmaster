@@ -17,7 +17,7 @@ export default function Home() {
 
   const [form, setForm] = useState({
     amount: 10,
-    category: '', // пустая строка = любая категория
+    category: '', 
     difficulty: 'medium' as 'easy' | 'medium' | 'hard',
   });
 

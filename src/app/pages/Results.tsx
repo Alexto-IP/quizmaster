@@ -33,11 +33,11 @@ export default function Results() {
   }, [percentage]);
 
   const getMessage = () => {
-    if (percentage === 100) return "Идеально! Ты гений! 🏆";
-    if (percentage >= 80) return "Отличный результат! 🔥";
-    if (percentage >= 60) return "Хорошо! Молодец 👏";
-    if (percentage >= 40) return "Неплохо, можно лучше 💪";
-    return "В следующий раз получится лучше 📚";
+    if (percentage === 100) return "Perfect! You're a genius!🏆";
+    if (percentage >= 80) return "Great result! 🔥";
+    if (percentage >= 60) return "Good! Well done 👏";
+    if (percentage >= 40) return "Not bad, as good as possible 💪";
+    return "It'll be better next time 📚";
   };
 
   const getColor = () => {
@@ -69,7 +69,7 @@ export default function Results() {
           {/* Верхний баннер */}
           <div className={`bg-gradient-to-r ${getColor()} p-10 text-white text-center`}>
             <Trophy className="w-20 h-20 mx-auto mb-4 opacity-90" />
-            <h1 className="text-5xl font-bold mb-2">Квиз завершён!</h1>
+            <h1 className="text-5xl font-bold mb-2">The quiz is completed!</h1>
             <p className="text-2xl opacity-90">{getMessage()}</p>
           </div>
 
@@ -78,7 +78,7 @@ export default function Results() {
             <div className="inline-block bg-gradient-to-br from-gray-50 to-white border border-gray-100 rounded-3xl px-16 py-10 mb-10">
               <div className="text-8xl font-bold text-gray-900 mb-1">{percentage}%</div>
               <div className="text-xl text-gray-600">
-                {score} из {total} правильных
+                {score} out of {total} correct
               </div>
             </div>
 
@@ -87,17 +87,17 @@ export default function Results() {
               <div className="bg-green-50 border border-green-100 rounded-2xl p-6 text-center">
                 <Star className="w-8 h-8 text-green-600 mx-auto mb-2" />
                 <div className="text-4xl font-bold text-green-700">{score}</div>
-                <div className="text-sm text-green-600">Правильно</div>
+                <div className="text-sm text-green-600">Correct</div>
               </div>
               <div className="bg-red-50 border border-red-100 rounded-2xl p-6 text-center">
                 <TrendingUp className="w-8 h-8 text-red-600 mx-auto mb-2" />
                 <div className="text-4xl font-bold text-red-700">{total - score}</div>
-                <div className="text-sm text-red-600">Неправильно</div>
+                <div className="text-sm text-red-600">Incorrect</div>
               </div>
               <div className="bg-blue-50 border border-blue-100 rounded-2xl p-6 text-center">
                 <Trophy className="w-8 h-8 text-blue-600 mx-auto mb-2" />
                 <div className="text-4xl font-bold text-blue-700">{total}</div>
-                <div className="text-sm text-blue-600">Всего</div>
+                <div className="text-sm text-blue-600">Total</div>
               </div>
             </div>
 
@@ -108,7 +108,7 @@ export default function Results() {
                 className="flex-1 bg-white border-2 border-gray-300 hover:border-purple-600 hover:text-purple-600 text-gray-700 font-bold py-5 rounded-2xl text-lg transition-all flex items-center justify-center gap-3"
               >
                 <Home className="w-5 h-5" />
-                На главную
+                Main page
               </Link>
 
               <button
@@ -116,7 +116,7 @@ export default function Results() {
                 className="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold py-5 rounded-2xl text-lg shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-3"
               >
                 <RotateCcw className="w-5 h-5" />
-                Пройти этот квиз заново
+                Try this quiz again
               </button>
             </div>
           </div>

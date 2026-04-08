@@ -61,7 +61,7 @@ export default function Quiz() {
         setSelectedAnswer(null);
         setShowFeedback(false);
       } catch (err: any) {
-        setError(err.message || 'Не удалось загрузить квиз');
+        setError(err.message || "Couldn't upload quiz");
       } finally {
         setIsLoading(false);
       }
@@ -100,7 +100,7 @@ export default function Quiz() {
       <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 flex items-center justify-center">
         <div className="text-center">
           <Loader2 className="w-12 h-12 animate-spin mx-auto text-purple-600 mb-4" />
-          <p className="text-lg text-gray-600">Загружаем квиз...</p>
+          <p className="text-lg text-gray-600">Loading quiz...</p>
         </div>
       </div>
     );
@@ -110,10 +110,10 @@ export default function Quiz() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 flex items-center justify-center px-6">
         <div className="text-center">
-          <h2 className="text-3xl font-bold text-red-600 mb-4">Ошибка</h2>
+          <h2 className="text-3xl font-bold text-red-600 mb-4">Error</h2>
           <p className="text-gray-600 mb-6">{error}</p>
           <Link to="/" className="bg-purple-600 text-white px-8 py-3 rounded-2xl font-semibold">
-            На главную
+            Main page
           </Link>
         </div>
       </div>
@@ -130,13 +130,13 @@ export default function Quiz() {
         <div className="max-w-4xl mx-auto px-6 py-4 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2 text-gray-700 hover:text-purple-600">
             <ArrowLeft className="w-5 h-5" />
-            <span className="font-medium">Главная</span>
+            <span className="font-medium">Main page</span>
           </Link>
 
           <div className="text-center">
             <h1 className="font-bold text-xl">QuizMaster</h1>
             <p className="text-sm text-gray-500">
-              Вопрос {currentQuestionIndex + 1} из {questions.length}
+              Question {currentQuestionIndex + 1} of {questions.length}
             </p>
           </div>
 
@@ -145,7 +145,7 @@ export default function Quiz() {
             className="flex items-center gap-2 text-sm font-medium text-purple-600 hover:text-purple-700"
           >
             <RotateCcw className="w-4 h-4" />
-            Заново
+            Retry
           </button>
         </div>
       </header>
@@ -212,7 +212,7 @@ export default function Quiz() {
                     : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                 }`}
               >
-                {currentQuestionIndex < questions.length - 1 ? 'Следующий вопрос' : 'Завершить квиз'}
+                {currentQuestionIndex < questions.length - 1 ? 'Next question' : 'End quiz'}
               </button>
             )}
 
@@ -220,7 +220,7 @@ export default function Quiz() {
               <div className={`p-6 rounded-2xl text-center text-lg font-semibold ${
                 isCorrect ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
               }`}>
-                {isCorrect ? '🎉 Правильно!' : '❌ Неправильно'}
+                {isCorrect ? '🎉 Correct!' : '❌ Incorrect'}
               </div>
             )}
           </motion.div>

@@ -10,9 +10,9 @@ export default function NotFound() {
         </div>
 
         <h1 className="text-7xl font-bold text-gray-900 mb-4">404</h1>
-        <h2 className="text-3xl font-semibold mb-3">Квиз не найден</h2>
+        <h2 className="text-3xl font-semibold mb-3">Not found</h2>
         <p className="text-gray-600 mb-10">
-          Возможно, ссылка устарела или была введена неверно.
+          The link may be outdated or entered incorrectly.
         </p>
 
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -21,7 +21,7 @@ export default function NotFound() {
             className="flex items-center justify-center gap-3 bg-purple-600 hover:bg-purple-700 text-white font-semibold px-8 py-4 rounded-2xl transition"
           >
             <Home className="w-5 h-5" />
-            На главную
+            Main page
           </Link>
 
           <button
@@ -29,7 +29,7 @@ export default function NotFound() {
             className="flex items-center justify-center gap-3 border border-gray-300 hover:bg-gray-50 font-semibold px-8 py-4 rounded-2xl transition"
           >
             <RotateCcw className="w-5 h-5" />
-            Обновить
+            Update
           </button>
         </div>
       </div>
