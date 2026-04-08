@@ -2,14 +2,19 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate, Link } from 'react-router';
 import { motion, AnimatePresence } from 'motion/react';
-import { ArrowLeft, Check, X, Loader2, RotateCcw } from 'lucide-react';
+import { ArrowLeft, Loader2, RotateCcw } from 'lucide-react';
 import { quizService } from '../services/quizService';
 import { Question } from '../data/quizzes';
 import { toast } from 'sonner';
+import { useABTest } from '../hooks/useABTest';   // ← новый импорт
 
 export default function Quiz() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+
+  // A/B тесты
+  const progressVariant = useABTest('progress');   // A = без, B = с прогресс-баром
+  const layoutVariant = useABTest('layout');       // A = горизонтально, B = вертикально
 
   const [questions, setQuestions] = useState<Question[]>([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -22,9 +27,9 @@ export default function Quiz() {
   const amount = Number(searchParams.get('amount')) || 10;
   const category = searchParams.get('category') ? Number(searchParams.get('category')) : undefined;
   const difficulty = (searchParams.get('difficulty') as 'easy' | 'medium' | 'hard') || undefined;
-  const isRetry = searchParams.get('retry') === 'true'; // ← ключевой флаг
+  const isRetry = searchParams.get('retry') === 'true';
 
-  // Загрузка квиза
+  // Загрузка вопросов
   useEffect(() => {
     const loadQuiz = async () => {
       try {
@@ -34,24 +39,11 @@ export default function Quiz() {
         let loadedQuestions: Question[] = [];
 
         if (isRetry) {
-          // Повторяем предыдущий квиз
-          const savedQuiz = localStorage.getItem('lastQuiz');
-          if (savedQuiz) {
-            loadedQuestions = JSON.parse(savedQuiz);
-            console.log('♻️ Загружен сохранённый квиз для повтора');
-          } else {
-            throw new Error('Сохранённый квиз не найден');
-          }
+          const saved = localStorage.getItem('lastQuiz');
+          if (saved) loadedQuestions = JSON.parse(saved);
+          else throw new Error('Saved quiz not found');
         } else {
-          // Новый квиз с главной страницы
-          console.log('🆕 Генерируем новый квиз');
-          loadedQuestions = await quizService.getQuestions({
-            amount,
-            category,
-            difficulty,
-          });
-
-          // Сохраняем как последний сыгранный
+          loadedQuestions = await quizService.getQuestions({ amount, category, difficulty });
           localStorage.setItem('lastQuiz', JSON.stringify(loadedQuestions));
         }
 
@@ -61,7 +53,7 @@ export default function Quiz() {
         setSelectedAnswer(null);
         setShowFeedback(false);
       } catch (err: any) {
-        setError(err.message || "Couldn't upload quiz");
+        setError(err.message || "Couldn't load quiz");
       } finally {
         setIsLoading(false);
       }
@@ -69,6 +61,9 @@ export default function Quiz() {
 
     loadQuiz();
   }, [amount, category, difficulty, isRetry]);
+
+  const currentQuestion = questions[currentQuestionIndex];
+  const remaining = questions.length - currentQuestionIndex - 1;
 
   const handleAnswerSelect = (index: number) => {
     if (showFeedback) return;
@@ -120,9 +115,12 @@ export default function Quiz() {
     );
   }
 
-  const currentQuestion = questions[currentQuestionIndex];
-  const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
   const isCorrect = selectedAnswer === currentQuestion.correctAnswer;
+
+  // Класс для контейнера кнопок
+  const answersClass = layoutVariant === 'B'
+    ? "flex flex-col gap-4"                    // Вертикально
+    : "grid grid-cols-1 md:grid-cols-4 gap-4"; // Горизонтально
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50">
@@ -141,7 +139,7 @@ export default function Quiz() {
           </div>
 
           <button
-            onClick={() => window.location.reload()} // простой рестарт текущего
+            onClick={() => window.location.reload()}
             className="flex items-center gap-2 text-sm font-medium text-purple-600 hover:text-purple-700"
           >
             <RotateCcw className="w-4 h-4" />
@@ -150,15 +148,21 @@ export default function Quiz() {
         </div>
       </header>
 
-      {/* Progress */}
-      <div className="max-w-4xl mx-auto px-6 pt-4">
-        <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
-          <motion.div
-            className="h-full bg-gradient-to-r from-purple-600 to-pink-600"
-            animate={{ width: `${progress}%` }}
-          />
+      {/* === ПРОГРЕСС-БАР (гипотеза 1) === */}
+      {progressVariant === 'B' && (
+        <div className="max-w-4xl mx-auto px-6 pt-6">
+          <div className="flex justify-between text-sm mb-2 text-gray-600">
+            <span>Question {currentQuestionIndex + 1} of {questions.length}</span>
+            <span className="font-medium">Remaining: {remaining}</span>
+          </div>
+          <div className="h-2.5 bg-gray-200 rounded-full overflow-hidden">
+            <motion.div
+              className="h-full bg-gradient-to-r from-purple-600 to-pink-600"
+              animate={{ width: `${((currentQuestionIndex + 1) / questions.length) * 100}%` }}
+            />
+          </div>
         </div>
-      </div>
+      )}
 
       <div className="max-w-4xl mx-auto px-6 py-10">
         <AnimatePresence mode="wait">
@@ -179,7 +183,8 @@ export default function Quiz() {
               </div>
             </div>
 
-            <div className="space-y-4 mb-10">
+            {/* Кнопки ответов — здесь применяется A/B тест */}
+            <div className={answersClass}>
               {currentQuestion.options.map((option, index) => (
                 <motion.button
                   key={index}
@@ -188,13 +193,13 @@ export default function Quiz() {
                   className={`w-full p-6 text-left rounded-2xl border text-lg font-medium transition-all ${
                     showFeedback
                       ? index === currentQuestion.correctAnswer
-                        ? 'bg-green-500 text-white'
+                        ? 'bg-green-500 text-white border-green-500'
                         : selectedAnswer === index
-                        ? 'bg-red-500 text-white'
-                        : 'bg-gray-100 text-gray-400'
+                        ? 'bg-red-500 text-white border-red-500'
+                        : 'bg-gray-100 text-gray-400 border-gray-200'
                       : selectedAnswer === index
-                      ? 'bg-purple-600 text-white'
-                      : 'bg-white hover:bg-gray-50 border-gray-200'
+                      ? 'bg-purple-600 text-white border-purple-600'
+                      : 'bg-white hover:bg-gray-50 border-gray-200 hover:border-purple-300'
                   }`}
                 >
                   {option}
@@ -206,18 +211,18 @@ export default function Quiz() {
               <button
                 onClick={handleSubmitAnswer}
                 disabled={selectedAnswer === null}
-                className={`w-full py-5 rounded-2xl font-bold text-xl ${
+                className={`mt-8 w-full py-5 rounded-2xl font-bold text-xl transition-all ${
                   selectedAnswer !== null
                     ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white'
                     : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                 }`}
               >
-                {currentQuestionIndex < questions.length - 1 ? 'Next question' : 'End quiz'}
+                {currentQuestionIndex < questions.length - 1 ? 'Next question' : 'Finish quiz'}
               </button>
             )}
 
             {showFeedback && (
-              <div className={`p-6 rounded-2xl text-center text-lg font-semibold ${
+              <div className={`mt-8 p-6 rounded-2xl text-center text-lg font-semibold ${
                 isCorrect ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
               }`}>
                 {isCorrect ? '🎉 Correct!' : '❌ Incorrect'}
