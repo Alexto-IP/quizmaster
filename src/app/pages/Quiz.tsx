@@ -25,7 +25,7 @@ export default function Quiz() {
   const [error, setError] = useState<string | null>(null);
 
   const amount = Number(searchParams.get('amount')) || 10;
-  const category = searchParams.get('category') ? Number(searchParams.get('category')) : undefined;
+  const category = searchParams.get('category') || undefined;
   const difficulty = (searchParams.get('difficulty') as 'easy' | 'medium' | 'hard') || undefined;
   const isRetry = searchParams.get('retry') === 'true';
 

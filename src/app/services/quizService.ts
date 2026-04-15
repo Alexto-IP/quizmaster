@@ -1,11 +1,11 @@
 // src/app/services/quizService.ts
 import { Question } from '../data/quizzes';
 
-const BASE_URL = 'https://opentdb.com';
+const BASE_URL = 'https://the-trivia-api.com/v2';
 
 export interface QuizParams {
   amount: number;
-  category?: number;
+  category?: string;
   difficulty?: 'easy' | 'medium' | 'hard';
 }
 
@@ -14,9 +14,18 @@ export const quizService = {
    * Получить список всех категорий
    */
   async getCategories() {
-    const response = await fetch(`${BASE_URL}/api_category.php`);
-    const data = await response.json();
-    return data.trivia_categories as { id: number; name: string }[];
+    const response = await fetch(`${BASE_URL}/categories`);
+
+    if (!response.ok) {
+      throw new Error(`Не удалось загрузить категории (${response.status})`);
+    }
+
+    const data: Record<string, string[]> = await response.json();
+
+    return Object.entries(data).map(([name, slugs]) => ({
+      id: slugs[0] as string,
+      name: name,
+    })) as { id: string; name: string }[];
   },
 
   /**
@@ -25,39 +34,52 @@ export const quizService = {
   async getQuestions(params: QuizParams): Promise<Question[]> {
     const queryParams = new URLSearchParams({
       amount: params.amount.toString(),
-      type: 'multiple', // только вопросы с 4 вариантами
     });
 
     if (params.category) {
-      queryParams.append('category', params.category.toString());
+      queryParams.append('categories', params.category);
     }
+
     if (params.difficulty) {
       queryParams.append('difficulty', params.difficulty);
     }
 
-    const response = await fetch(`${BASE_URL}/api.php?${queryParams}`);
-    const data = await response.json();
+    const url = `${BASE_URL}/questions?${queryParams}`;
 
-    if (data.response_code !== 0) {
-      throw new Error('Failed to fetch questions. Please try again.');
+    const response = await fetch(url);
+
+    if (!response.ok) {
+      throw new Error(`Ошибка сервера: ${response.status}. Попробуйте позже.`);
     }
 
-    // Преобразуем вопросы из формата OpenTDB в наш формат
-    return data.results.map((item: any, index: number) => {
-      const allAnswers = [...item.incorrect_answers, item.correct_answer];
+    const rawQuestions: any[] = await response.json();
+
+    if (!Array.isArray(rawQuestions) || rawQuestions.length === 0) {
+      throw new Error('Не удалось получить вопросы. Попробуйте другую категорию.');
+    }
+
+    return rawQuestions.map((item, index: number) => {
+      const questionText = typeof item.question === 'object' 
+        ? item.question.text 
+        : item.question;   // на всякий случай
+
+      const correctAnswer = item.correctAnswer;
+      const incorrectAnswers = item.incorrectAnswers || [];
+
+      const allAnswers = [...incorrectAnswers, correctAnswer];
       const shuffledAnswers = allAnswers.sort(() => Math.random() - 0.5);
 
       return {
         id: index,
-        question: decodeHtml(item.question),
+        question: decodeHtml(questionText),
         options: shuffledAnswers.map(decodeHtml),
-        correctAnswer: shuffledAnswers.indexOf(item.correct_answer),
+        correctAnswer: shuffledAnswers.indexOf(correctAnswer),
       };
     });
   },
 };
 
-// Помощник для декодирования HTML-сущностей (&quot;, &amp; и т.д.)
+// Помощник для декодирования HTML-сущностей
 function decodeHtml(html: string): string {
   const txt = document.createElement('textarea');
   txt.innerHTML = html;
