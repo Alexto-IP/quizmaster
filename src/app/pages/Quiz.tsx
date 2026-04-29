@@ -14,7 +14,7 @@ export default function Quiz() {
 
   // A/B тесты
   const progressVariant = useABTest('progress');   // A = без, B = с прогресс-баром
-  const layoutVariant = useABTest('layout');       // A = горизонтально, B = вертикально
+  //const layoutVariant = useABTest('layout');       // A = горизонтально, B = вертикально
 
   const [questions, setQuestions] = useState<Question[]>([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -118,9 +118,9 @@ export default function Quiz() {
   const isCorrect = selectedAnswer === currentQuestion.correctAnswer;
 
   // Класс для контейнера кнопок
-  const answersClass = layoutVariant === 'B'
-    ? "flex flex-col gap-4"                    // Вертикально
-    : "grid grid-cols-1 md:grid-cols-4 gap-4"; // Горизонтально
+  //const answersClass = layoutVariant === 'B'
+  //  ? "flex flex-col gap-4"                    // Вертикально
+  //  : "grid grid-cols-1 md:grid-cols-4 gap-4"; // Горизонтально
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50">
@@ -184,7 +184,32 @@ export default function Quiz() {
             </div>
 
             {/* Кнопки ответов — здесь применяется A/B тест */}
+            {/*
             <div className={answersClass}>
+              {currentQuestion.options.map((option, index) => (
+                <motion.button
+                  key={index}
+                  onClick={() => handleAnswerSelect(index)}
+                  disabled={showFeedback}
+                  className={`w-full p-6 text-left rounded-2xl border text-lg font-medium transition-all ${
+                    showFeedback
+                      ? index === currentQuestion.correctAnswer
+                        ? 'bg-green-500 text-white border-green-500'
+                        : selectedAnswer === index
+                        ? 'bg-red-500 text-white border-red-500'
+                        : 'bg-gray-100 text-gray-400 border-gray-200'
+                      : selectedAnswer === index
+                      ? 'bg-purple-600 text-white border-purple-600'
+                      : 'bg-white hover:bg-gray-50 border-gray-200 hover:border-purple-300'
+                  }`}
+                >
+                  {option}
+                </motion.button>
+              ))}
+            </div>
+            */}
+
+            <div className="flex flex-col gap-4">
               {currentQuestion.options.map((option, index) => (
                 <motion.button
                   key={index}

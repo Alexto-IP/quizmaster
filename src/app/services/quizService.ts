@@ -33,7 +33,7 @@ export const quizService = {
    */
   async getQuestions(params: QuizParams): Promise<Question[]> {
     const queryParams = new URLSearchParams({
-      amount: params.amount.toString(),
+      limit: params.amount.toString(),
     });
 
     if (params.category) {
