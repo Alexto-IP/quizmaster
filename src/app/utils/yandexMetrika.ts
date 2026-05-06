@@ -9,28 +9,38 @@ declare global {
 const isDev = import.meta.env.DEV;
 
 export const initYandexMetrika = () => {
-  if (isDev || !YM_ID) {
-    console.log('🟡 Yandex Metrika отключена в режиме разработки');
-    return;
-  }
+  if (import.meta.env.DEV || !YM_ID) return;
 
-  const script = document.createElement('script');
-  script.type = 'text/javascript';
-  script.async = true;
-  script.src = 'https://mc.yandex.ru/metrika/tag.js';
+  (function (m: any, e: Document, t: string, r: string, i: string) {
+    m[i] =
+      m[i] ||
+      function (...args: any[]) {
+        (m[i].a = m[i].a || []).push(args);
+      };
+    m[i].l = +new Date();
 
-  script.onload = () => {
-    window.ym(Number(YM_ID), 'init', {
-      clickmap: true,
-      trackLinks: true,
-      accurateTrackBounce: true,
-      webvisor: false,     
-      defer: true,
-      trackHash: true,
-    });
-  };
+    const k = e.createElement(t) as HTMLScriptElement;
+    const a = e.getElementsByTagName(t)[0];
 
-  document.head.appendChild(script);
+    k.async = true;
+    k.src = r;
+    a.parentNode?.insertBefore(k, a);
+  })(
+    window,
+    document,
+    "script",
+    "https://mc.yandex.ru/metrika/tag.js",
+    "ym"
+  );
+
+  window.ym(Number(YM_ID), "init", {
+    clickmap: true,
+    trackLinks: true,
+    accurateTrackBounce: true,
+    webvisor: false,
+    defer: true,
+    trackHash: true,
+  });
 };
 
 export const metrika = {
