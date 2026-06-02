@@ -6,46 +6,40 @@ declare global {
   }
 }
 
-const isDev = import.meta.env.DEV;
-
 export const initYandexMetrika = () => {
-  if (import.meta.env.DEV || !YM_ID) return;
+  if (!YM_ID) {
+    console.warn('Yandex Metrika: VITE_YM_ID is not set');
+    return;
+  }
 
+  // Официальная инициализация
   (function (m: any, e: Document, t: string, r: string, i: string) {
-    m[i] =
-      m[i] ||
-      function (...args: any[]) {
-        (m[i].a = m[i].a || []).push(args);
-      };
-    m[i].l = +new Date();
-
+    m[i] = m[i] || function (...args: any[]) {
+      (m[i].a = m[i].a || []).push(args);
+    };
+    m[i].l = 1 * new Date();
     const k = e.createElement(t) as HTMLScriptElement;
     const a = e.getElementsByTagName(t)[0];
-
-    k.async = true;
+    k.async = 1;
     k.src = r;
     a.parentNode?.insertBefore(k, a);
-  })(
-    window,
-    document,
-    "script",
-    "https://mc.yandex.ru/metrika/tag.js",
-    "ym"
-  );
+  })(window, document, 'script', `https://mc.yandex.ru/metrika/tag.js?id=${YM_ID}`, 'ym');
 
-  window.ym(Number(YM_ID), "init", {
+  window.ym(Number(YM_ID), 'init', {
     clickmap: true,
     trackLinks: true,
     accurateTrackBounce: true,
-    webvisor: false,
+    webvisor: true,
+    ssr: true,       
     defer: true,
-    trackHash: true,
   });
+
+  console.log(`✅ Yandex Metrika initialized with ID: ${YM_ID}`);
 };
 
 export const metrika = {
   reachGoal: (goal: string, params?: any) => {
-    if (!isDev && window.ym && YM_ID) {
+    if (window.ym) {
       window.ym(Number(YM_ID), 'reachGoal', goal, params);
     }
   }
